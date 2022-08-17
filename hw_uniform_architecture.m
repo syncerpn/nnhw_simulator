@@ -25,17 +25,24 @@ OPTION_AUTO_FORMAT_BIASES = 1;
 % class_file = 'voc.names';
 % base_color = [[1 0 1]; [0 0 1]; [0 1 1]; [0 1 0]; [1 1 0]; [1 0 0]]; % detection base color
 
-arch_name = 'opt5';
+arch_name = 'idag_m4';
 
 % model_prefix = 'model/svdsr10_2x/svdsr10_2x.backup_layer_';
-model_prefix = 'model/opt5/opt5_';
+model_prefix = 'model/idag_m4_32.966/m4_32.966_';
+% model_prefix = 'model/opt5/opt5_';
 
-image_name = 'D:/matlab/yolov3_hw_v2/test_images/set14/barbara.png';
-net_w = 360;
-net_h = 288;
+% image_name = 'test_images/set14/barbara.png';
+% net_w = 360;
+% net_h = 288;
+% image_name = 'test_images/set14/baboon.png';
 % net_w = 250;
 % net_h = 240;
-
+image_name = 'test_images/set5/butterfly_GT.bmp';
+net_w = 128;
+net_h = 128;
+% image_name = 'test_images/set5/baby_GT.bmp';
+% net_w = 256;
+% net_h = 256;
 % predefined presets from file
 % please define new presets in this file as well
 % update 20200320: all presets are inside struct 'ps'; please replace 'ps_'
