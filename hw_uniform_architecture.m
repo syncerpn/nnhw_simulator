@@ -25,10 +25,13 @@ OPTION_AUTO_FORMAT_BIASES = 1;
 % class_file = 'voc.names';
 % base_color = [[1 0 1]; [0 0 1]; [0 1 1]; [0 1 0]; [1 1 0]; [1 0 0]]; % detection base color
 
-arch_name = 'idag_m4';
+arch_name = 'idag_m4q';
+% arch_name = 'idag_m3';
 
 % model_prefix = 'model/svdsr10_2x/svdsr10_2x.backup_layer_';
-model_prefix = 'model/idag_m4_32.966/m4_32.966_';
+model_prefix = 'model/idag_m4_32.983q/layer_';
+% model_prefix = 'model/idag_m4_32.971qalready/layer_';
+% model_prefix = 'model/idag_m4_32.966/m4_32.966_';
 % model_prefix = 'model/opt5/opt5_';
 
 % image_name = 'test_images/set14/barbara.png';
@@ -106,6 +109,11 @@ for i = 1:n_layer
                 [wts_nbit, wts_fbit, ~] = weights_settings{2:end};
                 wts_step = 2^-wts_fbit;
                 [weight, ~] = uniform_quantize(weightx, wts_step, wts_nbit);
+                w_bonus_scale_factor = ones(output_channels,1);
+            elseif strcmp(wts_scheme, 'uniform_zero') %nghiant: 221020: add uniform quantization with zero. it is assymmetric though
+                [wts_nbit, wts_fbit, ~] = weights_settings{2:end};
+                wts_step = 2^-wts_fbit;
+                [weight, ~] = uniform_zero_quantize(weightx, wts_step, wts_nbit);
                 w_bonus_scale_factor = ones(output_channels,1);
             elseif strcmp(wts_scheme, 'mean_shifter')
                 wts_nlevel = 2^weights_settings{2};

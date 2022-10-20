@@ -40,7 +40,15 @@ ps.wts_none = {'none'};
 
 % preset: wts_uniform_nbit_step = {'uniform' nbit fbit sign}
 ps.wts_uniform_8_8_1 = {'uniform' 8 8 1};
+ps.wts_uniform_8_7_1 = {'uniform' 8 7 1};
+ps.wts_uniform_8_6_1 = {'uniform' 8 6 1};
 ps.wts_uniform_16_14_1 = {'uniform' 16 14 1};
+
+% preset: wts_uniformzero_nbit_step = {'uniform_zero' nbit fbit sign}
+ps.wts_uniform_zero_8_8_1 = {'uniform_zero' 8 8 1};
+ps.wts_uniform_zero_8_7_1 = {'uniform_zero' 8 7 1};
+ps.wts_uniform_zero_8_6_1 = {'uniform_zero' 8 6 1};
+ps.wts_uniform_zero_16_14_1 = {'uniform_zero' 16 14 1};
 
 % preset: wts_meanshifter_nbit_step = {'scale_linear' nbit}
 ps.wts_scale_linear_8 = {'scale_linear' 8};
