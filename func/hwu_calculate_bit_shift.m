@@ -17,6 +17,8 @@ for i = 1:n_layer
                 wts_fbit = 0;
             elseif strcmp(wts_scheme, 'uniform')
                 wts_fbit = weights_settings{3} + 1;
+            elseif strcmp(wts_scheme, 'uniform_zero')
+                wts_fbit = weights_settings{3};
             elseif strcmp(wts_scheme, 'mean_shifter')
                 wts_fbit = 2^(weights_settings{2}-1) - 1;
             elseif strcmp(wts_scheme, 'scale_linear')

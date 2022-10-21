@@ -25,17 +25,20 @@ OPTION_AUTO_FORMAT_BIASES = 1;
 % class_file = 'voc.names';
 % base_color = [[1 0 1]; [0 0 1]; [0 1 1]; [0 1 0]; [1 1 0]; [1 0 0]]; % detection base color
 
-arch_name = 'idag_m4q';
-% arch_name = 'idag_m3';
+% arch_name = 'idag_m4q';
+% arch_name = 'idag_40K_ch32';
+% arch_name = 'svdsr10_2x_uz';
+arch_name = 'svdsr10_2x_uz';
 
-% model_prefix = 'model/svdsr10_2x/svdsr10_2x.backup_layer_';
-model_prefix = 'model/idag_m4_32.983q/layer_';
+model_prefix = 'model/svdsr10_2x/svdsr10_2x.backup_layer_';
+% model_prefix = 'model/idag_m4_32.983q/layer_';
 % model_prefix = 'model/idag_m4_32.971qalready/layer_';
 % model_prefix = 'model/idag_m4_32.966/m4_32.966_';
 % model_prefix = 'model/opt5/opt5_';
 
 % image_name = 'test_images/set14/barbara.png';
 % net_w = 360;
+% model_prefix = 'model/idag_3301/idag_3301/core';
 % net_h = 288;
 % image_name = 'test_images/set14/baboon.png';
 % net_w = 250;
@@ -342,7 +345,7 @@ for i = 1:n_layer
             conv_out = convol2(input, weight, stride, pad);
             for j = 1:size(conv_out, 3)
                 conv_out(:,:,j) = conv_out(:,:,j) .* scales{i}(j);
-%                 conv_out(:,:,j) = floor(conv_out(:,:,j) / 2^bit_shift(i)); %if floating point is used, this line should be commented
+                conv_out(:,:,j) = floor(conv_out(:,:,j) / 2^bit_shift(i)); %if floating point is used, this line should be commented
                 conv_out(:,:,j) = conv_out(:,:,j) + biases{i}(j);
             end
             
