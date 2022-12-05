@@ -1,21 +1,19 @@
 function out = maxpool(in,f,s)
-w = size(in,1);
-h = size(in,2);
-c = size(in,3);
-w_o = ceil(w/s);
-h_o = ceil(h/s);
+[h,w,c] = size(in);
+h_o = floor((h - f) / s + 1);
+w_o = floor((w - f) / s + 1);
 c_o = c;
 
 out = zeros(w_o,h_o,c_o);
-for i = 1:c
+for i = 1:c    
     tmph = [];
     j = 1;
-    while (j <= w)
+    while (size(tmph, 1) < h_o)
         valid_w = min(j+f-1,w);
         
         tmpw = [];
         k = 1;
-        while (k <= h)
+        while (size(tmpw, 2) < w_o)
             valid_h = min(k+f-1,h);
             
             field = in(j:valid_w,k:valid_h,i);

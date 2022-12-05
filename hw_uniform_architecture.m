@@ -20,21 +20,25 @@ OPTION_AUTO_FORMAT_SCALES = 1;
 OPTION_AUTO_FORMAT_BIASES = 1;
 
 %-----specification------
-% class_file = 'imagenet.shortnames.list';
+class_file = 'data/imagenet.shortnames.list';
 % class_file = 'coco.names'; 
 % class_file = 'voc.names';
 % base_color = [[1 0 1]; [0 0 1]; [0 1 1]; [0 1 0]; [1 1 0]; [1 0 0]]; % detection base color
 
 % arch_name = 'idag_m4q';
 % arch_name = 'idag_40K_ch32';
+% arch_name = 'svdsr10_2x';
 % arch_name = 'svdsr10_2x_uz';
-arch_name = 'svdsr10_2x_uz';
+% arch_name = 'alexnet';
+arch_name = 'vgg';
 
-model_prefix = 'model/svdsr10_2x/svdsr10_2x.backup_layer_';
+% model_prefix = 'model/svdsr10_2x/svdsr10_2x.backup_layer_';
 % model_prefix = 'model/idag_m4_32.983q/layer_';
 % model_prefix = 'model/idag_m4_32.971qalready/layer_';
 % model_prefix = 'model/idag_m4_32.966/m4_32.966_';
 % model_prefix = 'model/opt5/opt5_';
+% model_prefix = 'model/alexnet/alexnet_layer_';
+model_prefix = 'model/vgg16/vgg16_layer_';
 
 % image_name = 'test_images/set14/barbara.png';
 % net_w = 360;
@@ -43,12 +47,15 @@ model_prefix = 'model/svdsr10_2x/svdsr10_2x.backup_layer_';
 % image_name = 'test_images/set14/baboon.png';
 % net_w = 250;
 % net_h = 240;
-image_name = 'test_images/set5/butterfly_GT.bmp';
-net_w = 128;
-net_h = 128;
+% image_name = 'test_images/set5/butterfly_GT.bmp';
+% net_w = 128;
+% net_h = 128;
 % image_name = 'test_images/set5/baby_GT.bmp';
 % net_w = 256;
 % net_h = 256;
+image_name = 'test_images/giraffe.jpg';
+net_w = 224;
+net_h = 224;
 % predefined presets from file
 % please define new presets in this file as well
 % update 20200320: all presets are inside struct 'ps'; please replace 'ps_'
@@ -71,12 +78,12 @@ net_h = 128;
 
 % additional definition, pretty much similar to import in python
 run('load_preset');
-% run('load_class_list');
+run('load_class_list');
 
 run(arch_name)
 
-% input_input_channels = 3; % rgb images
-input_input_channels = 1; % vdsr
+input_input_channels = 3; % rgb images
+% input_input_channels = 1; % vdsr
 
 %_USER_DEFINE_END_--------------------------------------------------------------------------------------------------------------------
 
@@ -261,12 +268,19 @@ for i = 1:n_layer
         case 'res'
         case 'maxpool'
         case 'avgpool'
+        case 'fully_connected'
+            param_file = [model_prefix num2str(i-1)];
+            [input_channels, output_channels] = architecture{i}{2:3};
+            [weight, bias] = read_fully_connected_param_module(param_file, input_channels, output_channels);
+            weights{i} = permute(reshape(weight, input_channels, output_channels), [2 1]);
+            biases{i} = bias;
         case 'softmax'
         case 'route'
         case 'yolo'
         case 'sres'
         case 'sr_flat'
         case 'lp_sres'
+        case 'adaptiveavgpool'
         otherwise
             fprintf('[FAILED] unknown layer type\n');
             break;
@@ -345,7 +359,7 @@ for i = 1:n_layer
             conv_out = convol2(input, weight, stride, pad);
             for j = 1:size(conv_out, 3)
                 conv_out(:,:,j) = conv_out(:,:,j) .* scales{i}(j);
-                conv_out(:,:,j) = floor(conv_out(:,:,j) / 2^bit_shift(i)); %if floating point is used, this line should be commented
+%                 conv_out(:,:,j) = floor(conv_out(:,:,j) / 2^bit_shift(i)); %if floating point is used, this line should be commented
                 conv_out(:,:,j) = conv_out(:,:,j) + biases{i}(j);
             end
             
@@ -469,6 +483,17 @@ for i = 1:n_layer
             input = output;
         case 'avgpool'
             output = avgpool(input);
+            input = output;
+        case 'adaptiveavgpool'
+            kernel_size = architecture{i}{2};
+            output = adaptiveavgpool(input, kernel_size);
+            input = output;
+        case 'fully_connected'
+            weight = weights{i};
+            bias = biases{i};
+            input = reshape(input, size(weight, 2), []);
+            fc_out = fully_connected(input, weight, bias);
+            output = hwu_float_relu_activate(fc_out);
             input = output;
         case 'sr_flat'
             [output, u] = flatten_sres(input);

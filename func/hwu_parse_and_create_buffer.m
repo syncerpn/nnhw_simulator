@@ -21,6 +21,8 @@ for i = 1:n_layer
             STAT.n_classification_layer = STAT.n_classification_layer + 1;
         case 'maxpool'
         case 'avgpool'
+        case 'adaptiveavgpool'
+        case 'fully_connected'
         case 'route'
             n_input_layer = numel(architecture{i}) - 1;
             for j = 1:n_input_layer

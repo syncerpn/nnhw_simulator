@@ -50,6 +50,10 @@ for i = 2:n_layers
         case 'avgpool'
             all_input_channels(i) = all_output_channels(i-1);
             all_output_channels(i) = all_input_channels(i);
+        case 'adaptiveavgpool'
+            all_input_channels(i) = all_output_channels(i-1);
+            all_output_channels(i) = all_input_channels(i);
+        case 'fully_connected'
         case 'yolo'
         case 'softmax'
         case 'sres'

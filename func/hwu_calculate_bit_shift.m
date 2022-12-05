@@ -95,6 +95,9 @@ for i = 1:n_layer
             output_fbit(i) = input_fbit;
         case 'avgpool'
             output_fbit(i) = input_fbit;
+        case 'adaptiveavgpool'
+            output_fbit(i) = input_fbit;
+        case 'fully_connected'
         case 'softmax'
         case 'route'
             n_input_layer = numel(architecture{i}) - 1;
