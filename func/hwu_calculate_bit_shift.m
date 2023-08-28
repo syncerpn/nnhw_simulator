@@ -32,6 +32,7 @@ for i = 1:n_layer
             scales_fbit = scales_nbit - scales_ibit;
             biases_fbit = biases_nbit - biases_ibit;
             
+            %nghiant: core formula
             bit_shift(i) = input_fbit + wts_fbit + scales_fbit - biases_fbit;
             
             if strcmp(activation, 'float_relu')
