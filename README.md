@@ -30,6 +30,7 @@ output = scale * (input @ weight) + bias
 y = s * (x @ w) + b
 
 for normal conv, scale = 1
+
 scale will be more meaningful with quantization and/or batch normalization
 
 ## quantization scheme for weights
@@ -42,6 +43,7 @@ scale will be more meaningful with quantization and/or batch normalization
 before adding two fixed-point numbers, make sure they have the same number of fractional bits
 
 c = si.sf * xi.xf * wi.wf
+
 y = ci.cf + bi.bf
 
 bit shift for c is xf + wf + sf - cf, meaning that you need to remove this number of bits
