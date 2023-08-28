@@ -27,6 +27,7 @@ load and pre-process input image
 ## CONV (@) ops modified formula
 
 output = scale * (input @ weight) + bias
+
 y = s * (x @ w) + b
 
 for normal conv, scale = 1
@@ -61,19 +62,3 @@ correct: ((0b1 * 0b1111 * 0b11) >> 1) + 0b101
 the number of fractional bits should be 0 + 1 + 1 = 2 bits for fractional part
 cannot add 2-fractional-bit number with 1-fractional-bit number
 have to 1 bit from (0b1 * 0b1111 * 0b11)
-
-128 x 128 x 3
-
-128 x 128 x 1
-128 x 128 x 1
-128 x 128 x 1
-
-3 x 3 x 3
-3 x 3 x 3 x 64 
-
-3 x 3 x 1 x 64 hyperparam groups = 3
-
-128 x 128 x 64
-
-0.0 1.0
-0 255
