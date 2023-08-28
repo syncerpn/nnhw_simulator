@@ -36,7 +36,6 @@ scale will be more meaningful with quantization and/or batch normalization
 ## quantization scheme for weights
 0. uniform_quantize
 1. scale_linear_quantize
-2. mean_shifter_quantize
 
 ## fixed-point bit calculation
 
@@ -49,4 +48,32 @@ y = ci.cf + bi.bf
 bit shift for c is xf + wf + sf - cf, meaning that you need to remove this number of bits
 from the intermediate result before adding with bias
 
-1.0 * 3.5 * 1.5 = 5.25
+1.0 * 7.5 * 1.5 + 2.5
+incorrect: ((0b1 * 0b1111 * 0b11)) + 0b101
+correct: ((0b1 * 0b1111 * 0b11) >> 1) + 0b101
+
+0b1
+
+0b111.1 -> 0b1111
+
+0b1.1 -> 0b11
+
+the number of fractional bits should be 0 + 1 + 1 = 2 bits for fractional part
+cannot add 2-fractional-bit number with 1-fractional-bit number
+have to 1 bit from (0b1 * 0b1111 * 0b11)
+
+128 x 128 x 3
+
+128 x 128 x 1
+128 x 128 x 1
+128 x 128 x 1
+
+3 x 3 x 3
+3 x 3 x 3 x 64 
+
+3 x 3 x 1 x 64 hyperparam groups = 3
+
+128 x 128 x 64
+
+0.0 1.0
+0 255

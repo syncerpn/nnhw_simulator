@@ -16,6 +16,8 @@ addpath('arch/');
 % _USER_DEFINE_------------------------------------------------------------------------------------------------------------------------
 %--------options---------
 % support dynamic fixed-point for scales and biases
+
+% UNIMPORTANT
 OPTION_AUTO_FORMAT_SCALES = 1;
 OPTION_AUTO_FORMAT_BIASES = 1;
 
@@ -49,6 +51,7 @@ net_h = 288;
 % additional definition, pretty much similar to import in python
 run('load_preset');
 run(arch_name)
+
 input_input_channels = 1; % sr y-channel image
 
 %_USER_DEFINE_END_--------------------------------------------------------------------------------------------------------------------
@@ -81,17 +84,24 @@ for i = 1:n_layer
             if strcmp(wts_scheme, 'none')
                 weight = weightx;
                 w_bonus_scale_factor = ones(output_channels,1);
+
+            %IMPORTANT
             elseif strcmp(wts_scheme, 'uniform')
                 [wts_nbit, wts_fbit, ~] = weights_settings{2:end};
                 wts_step = 2^-wts_fbit;
                 [weight, ~] = uniform_quantize(weightx, wts_step, wts_nbit);
                 w_bonus_scale_factor = ones(output_channels,1);
+            
             elseif strcmp(wts_scheme, 'mean_shifter')
                 wts_nlevel = 2^weights_settings{2};
                 [weight, w_bonus_scale_factor] = mean_shifter_quantize(weightx, output_channels, wts_nlevel/2);
+
+            %IMPORTANT
             elseif strcmp(wts_scheme, 'scale_linear')
                 wts_nlevel = 2^weights_settings{2};
                 [weight, w_bonus_scale_factor] = scale_linear_quantize(weightx, output_channels, wts_nlevel/2);
+
+
             elseif strcmp(wts_scheme, 'mean_shifter_float')
                 wts_nlevel = 2^weights_settings{2};
                 [weight, w_bonus_scale_factor] = mean_shifter_quantize_float(weightx, output_channels, wts_nlevel/2);
@@ -268,6 +278,8 @@ run_upto = inf;
 
 input_0 = input / 255.; %nghiant_220328: for route and concat input
 
+%INFERENCE PART
+
 for i = 1:n_layer
     if i > run_upto
         break;
@@ -298,13 +310,15 @@ for i = 1:n_layer
             
             weight = weights{i};
             
+            %IMPORTANT
             conv_out = convol2(input, weight, stride, pad);
             for j = 1:size(conv_out, 3)
                 conv_out(:,:,j) = conv_out(:,:,j) .* scales{i}(j);
-%                 conv_out(:,:,j) = floor(conv_out(:,:,j) / 2^bit_shift(i)); %if floating point is used, this line should be commented
+                conv_out(:,:,j) = floor(conv_out(:,:,j) / 2^bit_shift(i)); %if floating point is used, this line should be commented
                 conv_out(:,:,j) = conv_out(:,:,j) + biases{i}(j);
             end
             
+            %ACTIVATION PART:
             if strcmp(activation, 'float_relu')
                 output = hwu_float_relu_activate(conv_out);
             elseif strcmp(activation, 'leaky')
@@ -360,7 +374,7 @@ for i = 1:n_layer
             
             for j = 1:size(conv_out, 3)
                 conv_out(:,:,j) = conv_out(:,:,j) .* scales{i}(j);
-%                 conv_out(:,:,j) = floor(conv_out(:,:,j) / 2^bit_shift(i)); %if floating point is used, this line should be commented
+                conv_out(:,:,j) = floor(conv_out(:,:,j) / 2^bit_shift(i)); %if floating point is used, this line should be commented
                 conv_out(:,:,j) = conv_out(:,:,j) + biases{i}(j);
             end
             
@@ -429,15 +443,18 @@ for i = 1:n_layer
         case 'sr_flat'
             [output, u] = flatten_sres(input);
             input = output;
+        %UNIMPORTANT
         case 'softmax'
             dc = dc + 1;
             OUTPUT.all_classifications{dc,1} = i-1;
             OUTPUT.all_classifications{dc,2} = input;
+        %UNIMPORTANT
         case 'yolo'
             di = di + 1;
             OUTPUT.all_detections{di,1} = i-1;
             OUTPUT.all_detections{di,2} = (reshape(architecture{i}{2}, 2, []))';
             OUTPUT.all_detections{di,3} = input;
+        %UNIMPORTANT
         case 'sres'
             ds = ds + 1;
             OUTPUT.all_sres{ds,1} = i-1;
