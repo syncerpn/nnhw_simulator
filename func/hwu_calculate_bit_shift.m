@@ -1,5 +1,7 @@
 function [bit_shift, output_fbit] = hwu_calculate_bit_shift(architecture, input_ibit, input_fbit)
 
+input_input_fbit = input_fbit;
+
 n_layer = numel(architecture);
 bit_shift = zeros(n_layer, 1);
 output_fbit = zeros(n_layer, 1);
@@ -102,12 +104,17 @@ for i = 1:n_layer
         case 'softmax'
         case 'route'
             n_input_layer = numel(architecture{i}) - 1;
-            input_fbit = output_fbit(architecture{i}{2}+1);
+            if (architecture{i}{2}+1 == 0)
+                input_fbit = input_input_fbit;
+            else
+                input_fbit = output_fbit(architecture{i}{2}+1);
+            end
+            
             for j = 2:n_input_layer
                 if architecture{i}{j+1}+1 > 0
                     assert(input_fbit == output_fbit(architecture{i}{j+1}+1), '[FAILED] ROUTE layers fbit mismatched\n');
                 end
-            end
+            end 
             
             output_fbit(i) = input_fbit;
         case 'yolo'

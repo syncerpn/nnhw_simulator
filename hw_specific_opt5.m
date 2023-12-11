@@ -21,10 +21,10 @@ addpath('arch/');
 OPTION_AUTO_FORMAT_SCALES = 1;
 OPTION_AUTO_FORMAT_BIASES = 1;
 
-arch_name = 'opt5';
-model_prefix = 'model/opt5/opt5_';
+arch_name = 'ASFSR';
+model_prefix = 'model/asfsr/layer_';
 
-image_name = 'D:/matlab/yolov3_hw_v2/test_images/set14/barbara.png';
+image_name = 'test_images/set14/barbara.png';
 net_w = 360;
 net_h = 288;
 
@@ -273,6 +273,9 @@ input = double(input_clone(:,:,1));
 OUTPUT.all_sres = cell(STAT.n_sres, 2);
 ds = 0;
 
+OUTPUT.all_lp_sres = cell(STAT.n_lp_sres, 2);
+dlp = 0;
+
 fprintf('[ INFO ] forwarding\n');
 run_upto = inf;
 
@@ -314,7 +317,7 @@ for i = 1:n_layer
             conv_out = convol2(input, weight, stride, pad);
             for j = 1:size(conv_out, 3)
                 conv_out(:,:,j) = conv_out(:,:,j) .* scales{i}(j);
-                conv_out(:,:,j) = floor(conv_out(:,:,j) / 2^bit_shift(i)); %if floating point is used, this line should be commented
+%                 conv_out(:,:,j) = floor(conv_out(:,:,j) / 2^bit_shift(i)); %if floating point is used, this line should be commented
                 conv_out(:,:,j) = conv_out(:,:,j) + biases{i}(j);
             end
             
@@ -374,7 +377,7 @@ for i = 1:n_layer
             
             for j = 1:size(conv_out, 3)
                 conv_out(:,:,j) = conv_out(:,:,j) .* scales{i}(j);
-                conv_out(:,:,j) = floor(conv_out(:,:,j) / 2^bit_shift(i)); %if floating point is used, this line should be commented
+%                 conv_out(:,:,j) = floor(conv_out(:,:,j) / 2^bit_shift(i)); %if floating point is used, this line should be commented
                 conv_out(:,:,j) = conv_out(:,:,j) + biases{i}(j);
             end
             
@@ -477,18 +480,61 @@ end
 assert(i == n_layer, ['[ STOP ] intended debugging, stopped at layer ' num2str(i)]);
     
 %---post_processing---
-x_img = rgb2ycbcr(im2double(img_ori));
-x_img = x_img(:,:,1);
-y_img = OUTPUT.all_sres{1,2};
+if STAT.n_sres > 0
+    x_img = rgb2ycbcr(im2double(img_ori));
+    x_img = x_img(:,:,1);
+    y_img = OUTPUT.all_sres{1,2};
+    
+    diff_img = (x_img - y_img).^2;
+    diff_img = diff_img(u+1:end-u,u+1:end-u);
+    PSNR = 20*log10(1/sqrt(mean(diff_img(:))))
+    
+    subplot(1,2,1);
+    imshow(upsample_2x_3d(input_img));
+    title('bicubic 2x');
+    
+    subplot(1,2,2);
+    imshow(y_img);
+    title('CNN output');
+%     
+%     highres_img = uint8(255*imresize(input_img,2));
+%     x_img = highres_img;
+%     highres_img = rgb2ycbcr(highres_img);
+%     highres_img(:,:,1) = uint8(255*OUTPUT.all_sres{1,2}); %nghiant_220328: 255 * output
+%     highres_img = ycbcr2rgb(highres_img);
+%     x_img = ycbcr2rgb(rgb2ycbcr(x_img));
+%     imshow([highres_img,x_img]);
+    
+end
 
-diff_img = (x_img - y_img).^2;
-diff_img = diff_img(u+1:end-u,u+1:end-u);
-PSNR = 20*log10(1/sqrt(mean(diff_img(:))))
+if STAT.n_lp_sres > 0
+    for i = 1:STAT.n_lp_sres
+        highres_img = rgb2ycbcr(upsample_2x_3d(input_img));
+        subplot(1,3,1);
+        imshow(upsample_2x_3d(input_img));
+        title('bicubic 2x');
+        
+        add_image = OUTPUT.all_lp_sres{i,2} / 2^output_fbit(OUTPUT.all_lp_sres{i,1});
+        subplot(1,3,2);
+        imshow(add_image);
+        title('residual (CNN)');
+        
+        highres_img(:,:,1) = add_image + highres_img(:,:,1);
+        
+        x_img = im2double(imread(image_name));
+        x_img = rgb2ycbcr(x_img);
+        x_img = x_img(:,:,1);
+        
+        y_img = highres_img(:,:,1);
+        [yh, yw, ~] = size(y_img);
 
-subplot(1,2,1);
-imshow(upsample_2x_3d(input_img));
-title('bicubic 2x');
+        DEBUG.diff_img = (x_img - y_img).^2;
+        DEBUG.diff_img = DEBUG.diff_img(u+1:yh-u,u+1:yw-u);
+        PSNR = 20*log10(1/sqrt(mean(DEBUG.diff_img(:))))
 
-subplot(1,2,2);
-imshow(y_img);
-title('CNN output');
+        highres_img = ycbcr2rgb(highres_img);
+        subplot(1,3,3);
+        imshow(highres_img);
+        title('CNN 2x');
+    end
+end

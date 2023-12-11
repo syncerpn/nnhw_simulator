@@ -35,6 +35,7 @@ ps.conv_f7_p5_s2 = {7 5 2}; % downsample
 ps.conv_f1_p0_s1 = {1 0 1};
 ps.conv_f1_p0_s2 = {1 0 2}; % downsample
 ps.conv_f11_p4_s4 = {11 4 4}; % downsample
+ps.conv_f9_p8_s1 = {9 8 1};
 
 % preset: wts_none
 ps.wts_none = {'none'};
