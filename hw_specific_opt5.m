@@ -18,15 +18,15 @@ addpath('arch/');
 % support dynamic fixed-point for scales and biases
 
 % UNIMPORTANT
-OPTION_AUTO_FORMAT_SCALES = 1;
-OPTION_AUTO_FORMAT_BIASES = 1;
+OPTION_AUTO_FORMAT_SCALES = 0;
+OPTION_AUTO_FORMAT_BIASES = 0;
 
 arch_name = 'ASFSR';
 model_prefix = 'model/asfsr/layer_';
 
-image_name = 'test_images/set14/barbara.png';
-net_w = 360;
-net_h = 288;
+image_name = 'test_images/set14/baboon.png';
+net_w = 250;
+net_h = 240;
 
 % predefined presets from file
 % please define new presets in this file as well
@@ -279,7 +279,7 @@ dlp = 0;
 fprintf('[ INFO ] forwarding\n');
 run_upto = inf;
 
-input_0 = input / 255.; %nghiant_220328: for route and concat input
+input_0 = input / 255; %nghiant_220328: for route and concat input
 
 %INFERENCE PART
 
