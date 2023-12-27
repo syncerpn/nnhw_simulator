@@ -104,7 +104,7 @@ for i = 1:n_layer
             
             scales_new = w_bonus_scale_factor .* ones(output_channels, 1);
             if (i == 1)
-%                 scales_new = scales_new / 255.;
+                scales_new = scales_new / 255.;
             end
             biases_new = bias;
             
@@ -154,14 +154,20 @@ clear wts_step wts_scheme wts_nbit wts_fbit weightx weights_settings weight weig
 %-------forward-------
 
 
-% input_clone = rgb2ycbcr(uint8(input_img * 255));
-input_clone = rgb2ycbcr(input_img);
+input_clone = rgb2ycbcr(uint8(input_img * 255));
+% input_clone = rgb2ycbcr(input_img);
 input = double(input_clone(:,:,1));
 
 blur_filter = ones(3,3) / 9;
 mask = abs(input - imfilter(input, blur_filter));
-mask(mask > 0.04) = 1;
-mask(mask <= 0.04) = 0;
+
+% mask(mask > 0.04) = 1;
+% mask(mask <= 0.04) = 0;
+% inv_mask = 1 - mask;
+
+mask(mask > 0.04 * 255) = 255;
+mask(mask <= 0.04 * 255) = 0;
+mask = mask / 255;
 inv_mask = 1 - mask;
 
 OUTPUT.all_lp_sres = cell(STAT.n_lp_sres, 2);
@@ -170,8 +176,8 @@ dlp = 0;
 fprintf('[ INFO ] forwarding\n');
 run_upto = inf;
 
-% input_0 = input / 255; %nghiant_220328: for route and concat input
-input_0 = input; %nghiant_220328: for route and concat input
+input_0 = input / 255; %nghiant_220328: for route and concat input
+% input_0 = input; %nghiant_220328: for route and concat input
 
 %INFERENCE PART
 
@@ -209,7 +215,7 @@ for i = 1:n_layer
             conv_out = convol2(input, weight, stride, pad);
             for j = 1:size(conv_out, 3)
                 conv_out(:,:,j) = conv_out(:,:,j) .* scales{i}(j);
-%                 conv_out(:,:,j) = floor(conv_out(:,:,j) / 2^bit_shift(i)); %if floating point is used, this line should be commented
+                conv_out(:,:,j) = floor(conv_out(:,:,j) / 2^bit_shift(i)); %if floating point is used, this line should be commented
                 conv_out(:,:,j) = conv_out(:,:,j) + biases{i}(j);
             end
             

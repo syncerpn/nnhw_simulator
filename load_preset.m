@@ -45,6 +45,7 @@ ps.wts_uniform_8_8_1 = {'uniform' 8 8 1};
 ps.wts_uniform_8_7_1 = {'uniform' 8 7 1};
 ps.wts_uniform_8_6_1 = {'uniform' 8 6 1};
 ps.wts_uniform_16_14_1 = {'uniform' 16 14 1};
+ps.wts_uniform_16_8_1 = {'uniform' 16 8 1};
 
 % preset: wts_uniformzero_nbit_step = {'uniform_zero' nbit fbit sign}
 ps.wts_uniform_zero_8_8_1 = {'uniform_zero' 8 8 1};
@@ -97,6 +98,7 @@ ps.act_lineq_8_4_1 = {'line_q' 8 4 1};
 ps.act_lineq_8_3_1 = {'line_q' 8 3 1};
 ps.act_lineq_9_0_1 = {'line_q' 9 0 1};
 ps.act_lineq_8_0_1 = {'line_q' 8 0 1};
+ps.act_lineq_16_8_1 = {'line_q' 16 8 1};
 ps.act_linear_0_0_0 = {'linear' 0 0 0};
 ps.act_relu_rs_8_7_0 = {'relu_rs' 8 7 0};
 ps.act_relu_rs_8_8_0 = {'relu_rs' 8 8 0};
